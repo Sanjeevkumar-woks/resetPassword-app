@@ -82,7 +82,7 @@ const ResetPassword = () => {
 
       try {
         const response = await fetch(
-          `https://resetpassword-kiv9.onrender.com/auth-service/auth/forgetPassword?token=${token} `,
+          `https://resetpassword-kiv9.onrender.com/auth-service/auth/resetPassword?token=${token} `,
           requestOptions
         );
 
