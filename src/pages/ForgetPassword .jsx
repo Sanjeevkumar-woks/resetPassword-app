@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { AuthService } from "../service/authService";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
@@ -35,11 +34,29 @@ const ForgetPassword = () => {
     setErrors("");
 
     try {
-      await AuthService.forgotPassword(email);
+      const response = await fetch(
+        "https://resetpassword-kiv9.onrender.com/auth-service/auth/forgetPassword",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ emailId: email }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to send reset link.");
+      }
+
       alert("Password reset link sent to your email.");
       setEmail("");
     } catch (error) {
-      setErrors("Failed to send reset link. Please try again.");
+      console.error("Failed to send reset link:", error);
+      setErrors(
+        error.message || "Failed to send reset link. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }

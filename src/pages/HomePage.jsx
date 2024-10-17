@@ -1,12 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice";
-import { AuthService } from "../service/authService";
 
 const HomePage = () => {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const handleLogout = () => {
-    AuthService.logout();
     dispatch(logout());
   };
 

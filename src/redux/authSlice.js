@@ -11,10 +11,10 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
+      console.log("payload", action.payload);
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
-      //decode the token and take out _id and call getUserById  in authService
     },
     logout: (state) => {
       state.user = null;

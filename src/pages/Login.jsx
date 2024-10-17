@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { login } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
-import { AuthService } from "../service/authService";
+import { login } from "../redux/authSlice";
 
 const Login = () => {
   const [data, setData] = useState({
@@ -56,23 +55,38 @@ const Login = () => {
     }
     return validationErrors;
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
+
     if (Object.keys(validationErrors).length === 0) {
       const { username, password } = data;
-      AuthService.login(username, password)
-        .then((response) => {
-          //set the state of Redux
-          dispatch(login({ user: username, token: response.token }));
-          navigate("/"); // Redirect to dashboard or home page after successful login
-        })
-        .catch((error) => {
-          //error handling
-          const errorMessage =
-            error.response?.data?.message || "Username or password is invalid";
-          alert(errorMessage);
-        });
+
+      try {
+        const response = await fetch(
+          "https://resetpassword-kiv9.onrender.com/auth-service/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          }
+        );
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to login");
+        }
+
+        const result = await response.json();
+
+        dispatch(login({ user: username, token: result.token }));
+
+        navigate("/");
+      } catch (error) {
+        console.error("Failed to login:", error);
+        alert("Failed to login. Please try again.");
+      }
     } else {
       setErrors(validationErrors);
     }

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { AuthService } from "../service/authService";
 
 const SignIn = () => {
   const [data, setData] = useState({
@@ -64,32 +63,51 @@ const SignIn = () => {
     }
     return validationErrors;
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
+
     if (Object.keys(validationErrors).length === 0) {
       if (data.password !== data.confirmPassword) {
         alert("Passwords do not match");
         return;
       }
+      console.log(data);
 
-      // proceed with form submission (e.g., make API call)
-      AuthService.register(data.username, data.emailId, data.password)
-        .then((response) => {
-          alert(response);
-        })
-        .catch((error) => {
-          alert(error);
+      try {
+        const response = await fetch(
+          "https://resetpassword-kiv9.onrender.com/auth-service/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username: data.username,
+              emailId: data.emailId,
+              password: data.password,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Registration failed");
+        }
+
+        const result = await response.json();
+        alert(result.message || "Registration successful");
+
+        setData({
+          emailId: "",
+          username: "",
+          password: "",
+          confirmPassword: "",
         });
-
-      // reset form fields
-      setData({
-        emailId: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-      });
+      } catch (error) {
+        console.error("Registration request failed:", error);
+        alert(error.message || "An error occurred during registration");
+      }
     } else {
       setErrors(validationErrors);
     }

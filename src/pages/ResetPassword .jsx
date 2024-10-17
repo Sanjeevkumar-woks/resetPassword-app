@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { AuthService } from "../service/authService";
 
 const ResetPassword = () => {
   const [data, setData] = useState({
@@ -66,7 +65,7 @@ const ResetPassword = () => {
     return validationErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (data.newPassword !== data.confirmNewPassword) {
       alert("Passwords do not match");
@@ -75,16 +74,29 @@ const ResetPassword = () => {
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      AuthService.resetPassword(token, data.newPassword)
-        .then((response) => {
-          alert(response.message);
-        })
-        .catch((error) => {
-          alert(error);
-        });
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailId: email }),
+      };
 
-      setData({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
-      // alert("Password changed successfully");
+      try {
+        const response = await fetch(
+          `https://resetpassword-kiv9.onrender.com/auth-service/auth/forgetPassword`,
+          requestOptions
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        alert(result.message);
+      } catch (error) {
+        console.error("Forgot password request failed:", error);
+        throw error;
+      }
     } else {
       setErrors(validationErrors);
     }
