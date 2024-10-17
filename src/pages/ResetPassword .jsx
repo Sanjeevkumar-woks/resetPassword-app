@@ -77,12 +77,12 @@ const ResetPassword = () => {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emailId: email }),
+        body: JSON.stringify({ password: data.newPassword }),
       };
 
       try {
         const response = await fetch(
-          `https://resetpassword-kiv9.onrender.com/auth-service/auth/forgetPassword`,
+          `https://resetpassword-kiv9.onrender.com/auth-service/auth/forgetPassword?token=${token} `,
           requestOptions
         );
 
